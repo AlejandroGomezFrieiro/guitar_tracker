@@ -1,0 +1,7 @@
+models/
+result
+result-*
+*.wav
+data/
+__pycache__/
+.reaper-sandbox/
