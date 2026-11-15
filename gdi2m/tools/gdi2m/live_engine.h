@@ -478,8 +478,16 @@ public:
                 err = "could not open a MIDI port. loopMIDI must be running "
                       "with its port created.";
 #else
-                err = "could not open a MIDI port. --list shows them; --port "
-                      "picks one, --no-midi runs without.";
+                // Name what WAS asked for and what exists: the usual cause is
+                // a DAW that is not in the graph, which a bare "could not
+                // open" hides.
+                err = opt.port.empty()
+                          ? std::string("could not open a MIDI port.")
+                          : "no MIDI port matches '" + opt.port + "' (or more than one does).";
+                err += "\nMIDI ports right now:";
+                for (const auto& n : names) err += "\n  " + n;
+                err += "\nA DAW's MIDI input is only here while the DAW runs on JACK/PipeWire"
+                       "\nwith that input enabled. --no-midi runs without a port.";
 #endif
                 return false;
             }
