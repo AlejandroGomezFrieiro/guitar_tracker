@@ -14,9 +14,29 @@
         })
         systems);
   in {
-    packages = forAllSystems (system: pkgs: {
+    packages = forAllSystems (system: pkgs: let
+      self = inputs.self.packages.${system};
+    in {
+      # The pretrained graph and its two sidecars. Upstream publishes them
+      # only inside its Windows release binary, so that is what is fetched;
+      # the script copies them out of its resource section without running it.
+      gdi2m-model = pkgs.stdenvNoCC.mkDerivation {
+        pname = "gdi2m-model";
+        version = "0.1.0";
+        src = pkgs.fetchurl {
+          url = "https://github.com/maximmashkov1/gdi2m/releases/download/0.1.0/gdi2m_ui.exe";
+          hash = "sha256-IxEl3FZQRvMuZpANyCg4KFcHKBCc44bcUebZaXgqA+M=";
+        };
+        dontUnpack = true;
+        nativeBuildInputs = [pkgs.python3];
+        installPhase = ''
+          python3 ${./scripts/fetch_model.py} --exe $src --out $out/share/gdi2m
+        '';
+      };
+
       # The console tool from ./gdi2m, a vendored copy of the causal CNN+GRU
-      # guitar transcriber (MIT) with a JACK backend added.
+      # guitar transcriber (MIT) with a JACK backend added. The model sits
+      # where the tool looks for it, so `gdi2m` runs as installed.
       gdi2m = pkgs.stdenv.mkDerivation {
         pname = "gdi2m";
         version = "0.1.0";
@@ -26,9 +46,13 @@
         # finds whichever libjack the system provides, PipeWire's included.
         buildInputs = [pkgs.onnxruntime pkgs.libjack2];
         cmakeFlags = ["-DCMAKE_BUILD_TYPE=Release"];
+        postInstall = ''
+          mkdir -p $out/share
+          ln -s ${self.gdi2m-model}/share/gdi2m $out/share/gdi2m
+        '';
         meta.mainProgram = "gdi2m";
       };
-      default = inputs.self.packages.${system}.gdi2m;
+      default = self.gdi2m;
     });
 
     devShells = forAllSystems (system: pkgs: {
@@ -43,10 +67,8 @@
             (ps.mir-eval.overridePythonAttrs (_: {doCheck = false;}))
           ]))
         ];
-        # The model is fetched, not built: python3 scripts/fetch_model.py
-        shellHook = ''
-          export GDI2M_MODEL="$(git rev-parse --show-toplevel 2>/dev/null || pwd)/models/gdi2m/gdi2m.onnx"
-        '';
+        # bench/ and scripts/ read the model's sidecar from here
+        GDI2M_MODEL = "${inputs.self.packages.${system}.gdi2m-model}/share/gdi2m/gdi2m.onnx";
       };
     });
   };

@@ -13,10 +13,13 @@ gives an onset and a sustain probability for each of 53 pitches, MIDI 36 to
 reports an onset F1 of 0.744 on EGDB, an electric-guitar set it never trained
 on, and 8.8 ms of algorithmic delay; neither figure was reproduced here.
 
-Upstream publishes its weights only inside the Windows release binary.
-`scripts/fetch_model.py` downloads that binary, checks its SHA-256 and copies
-the graph and its two sidecars out of the resource section. The binary is
-parsed, never run.
+Upstream publishes its weights only inside the Windows release binary. The
+flake's `gdi2m-model` package fetches that binary by hash and runs
+`scripts/fetch_model.py` on it, which copies the graph and its two sidecars
+out of the resource section; the binary is parsed, never run. The `gdi2m`
+package links the model to `share/gdi2m/`, where the tool looks by default.
+Without Nix, `python3 scripts/fetch_model.py` downloads and extracts into
+`models/gdi2m/`, and `GDI2M_MODEL` names the graph.
 
 ## What was changed in `gdi2m/`
 
@@ -38,7 +41,7 @@ unchanged and so far unused here.
 ## Build
 
 ```sh
-nix build .#gdi2m      # result/bin/gdi2m
+nix build .#gdi2m      # result/bin/gdi2m, with the model in result/share/gdi2m
 nix develop            # the same binary plus Python with numpy, soundfile, mir_eval
 ```
 

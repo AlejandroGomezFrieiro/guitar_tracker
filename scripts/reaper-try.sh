@@ -16,7 +16,6 @@ repo=$(cd "$(dirname "$0")/.." && pwd)
 if ! command -v gdi2m >/dev/null; then
     exec nix develop "$repo" -c "$0" "$@"
 fi
-export GDI2M_MODEL=${GDI2M_MODEL:-$repo/models/gdi2m/gdi2m.onnx}
 
 box=$repo/.reaper-sandbox
 cfg=$box/xdg/REAPER

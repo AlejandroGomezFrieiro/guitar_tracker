@@ -1,8 +1,8 @@
 # User guide
 
 How to set up, play through the tracker and get the notes into a synth or a
-DAW. Commands assume you are inside `nix develop` at the repository root, with
-the model fetched (see the README).
+DAW. Commands assume `gdi2m` is installed or you are inside `nix develop`;
+the two scripts are run from the repository root.
 
 ## Before you play
 

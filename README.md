@@ -10,11 +10,13 @@ neural network, with a JACK/PipeWire backend and a few fixes added here.
 ## Quick start
 
 ```sh
-nix develop                      # builds the tracker, sets up the tools
-python3 scripts/fetch_model.py   # pretrained model -> models/gdi2m/
+nix develop          # builds the tracker, fetches the pretrained model
 gdi2m selftest
-gdi2m live --list                # find your guitar input
+gdi2m live --list    # find your guitar input
 ```
+
+To install it instead, add this flake's `gdi2m` package to your profile or
+your NixOS or Home Manager configuration; the model comes with it.
 
 Tune the guitar to A440, then hear what it detects as plain sine tones:
 
@@ -53,12 +55,12 @@ slower than damping everything. Details and the public-dataset scores are in
 | Path | What |
 |---|---|
 | `gdi2m/` | the tracker's source: a copy of gdi2m's Linux port, changed here |
-| `scripts/fetch_model.py` | downloads the pretrained model |
+| `scripts/fetch_model.py` | extracts the pretrained model (the flake runs it; by hand only without Nix) |
 | `scripts/reaper-try.sh` | opens a throwaway REAPER wired to the tracker |
 | `scripts/inspect_take.py` | shows what the model heard in a recording, and how far out of tune it was |
 | `bench/score.py` | scores the tracker against labelled recordings |
 | `docs/` | user guide, development notes |
-| `models/`, `data/` | the model and recordings; not in git |
+| `data/` | recordings and datasets; not in git |
 
 ## AI assistance
 
@@ -75,7 +77,8 @@ in mind.
 
 ## Credits and licences
 
-- gdi2m by Maxim Mashkov Izvekov, MIT, in `gdi2m/LICENSE`. Linux port of the
-  console tool by [hatch01](https://github.com/hatch01/gdi2m).
+- This repository is MIT licensed, see `LICENSE`.
+- gdi2m by Maxim Mashkov Izvekov, also MIT, in `gdi2m/LICENSE`. Linux port of
+  the console tool by [hatch01](https://github.com/hatch01/gdi2m).
 - The pretrained model is the one upstream ships in its 0.1.0 release.
 - GuitarSet, used by the bench, is CC BY 4.0.
